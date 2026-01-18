@@ -1,4 +1,5 @@
-const { Pool } = require("pg");
+import pkg from "pg";
+const { Pool } = pkg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,13 +8,13 @@ const pool = new Pool({
   },
 });
 
-async function initDB() {
+export async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      role TEXT NOT NULL,
+      email TEXT UNIQUE,
+      password TEXT,
+      role TEXT,
       name TEXT,
       height REAL,
       weight REAL,
@@ -21,7 +22,7 @@ async function initDB() {
       photo TEXT,
       position TEXT,
       workplace TEXT,
-      approved BOOLEAN DEFAULT FALSE,
+      approved BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);
@@ -29,21 +30,18 @@ async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS calculations (
       id SERIAL PRIMARY KEY,
-      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      user_id INTEGER REFERENCES users(id),
       bread_units REAL,
       glucose REAL,
       dose REAL,
       interpretation TEXT,
-      dose_approved BOOLEAN DEFAULT FALSE,
+      dose_approved BOOLEAN DEFAULT false,
       doctor_comment TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);
 
-  console.log("✅ Postgres tables ready");
+  console.log("✅ DB ready");
 }
 
-module.exports = {
-  db: pool,
-  initDB,
-};
+export default pool;
